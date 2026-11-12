@@ -1,0 +1,544 @@
+<title>Obsidian Reach</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400&family=Manrope:wght@300;400;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a fixed live sky (dawn→midnight, driven by scroll) behind the page; content sits left-weighted in an asymmetric editorial column with wide right-side breathing room for the cliff. Single dark scene by design. */
+:root{
+  --basalt:#0a0c10;
+  --basalt-2:#12161d;
+  --ivory:#eee8dc;
+  --stone:#a59f94;
+  --brass:#c9a46c;
+  --seaglass:#8db7ae;
+  --scrim:rgba(10,12,16,.62);
+  --rule:rgba(238,232,220,.16);
+  --display:"Bodoni Moda","Didot","Bodoni 72",Georgia,serif;
+  --body:"Manrope","Helvetica Neue",Arial,sans-serif;
+  --data:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --gut-l:max(16px,env(safe-area-inset-left,0px));
+  --gut-r:max(16px,env(safe-area-inset-right,0px));
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--basalt);color:var(--ivory);font-family:var(--body);font-weight:300;font-size:16px;line-height:1.7;overflow-x:hidden}
+#sky{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block}
+main,header,footer{position:relative;z-index:1}
+a{color:inherit}
+:focus-visible{outline:1px solid var(--brass);outline-offset:4px}
+.wrap{max-width:1240px;margin:0 auto;padding-left:var(--gut-l);padding-right:var(--gut-r)}
+
+/* nav */
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--basalt)}
+.nav{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;z-index:5;transition:background .4s}
+.nav.solid{background:linear-gradient(var(--scrim),rgba(10,12,16,0))}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:20px}
+.mark{font-family:var(--display);font-size:20px;letter-spacing:.32em;text-transform:uppercase;text-decoration:none;white-space:nowrap}
+.nav ul{display:flex;gap:32px;list-style:none;margin:0;padding:0;font-size:12px;letter-spacing:.2em;text-transform:uppercase}
+.nav ul a{text-decoration:none;color:var(--stone);transition:color .3s}
+.nav ul a:hover{color:var(--ivory)}
+.btn{display:inline-block;font:500 12px/1 var(--body);letter-spacing:.22em;text-transform:uppercase;text-decoration:none;color:var(--basalt);background:var(--ivory);border:1px solid var(--ivory);padding:15px 24px;cursor:pointer;transition:background .3s,color .3s}
+.btn:hover{background:transparent;color:var(--ivory)}
+.btn.line{background:transparent;color:var(--ivory)}
+.btn.line:hover{background:var(--ivory);color:var(--basalt)}
+@media (max-width:820px){.nav ul{display:none}}
+
+/* clock */
+.clock{position:fixed;left:0;bottom:0;z-index:4;padding-bottom:calc(18px + env(safe-area-inset-bottom,0px));padding-left:var(--gut-l);font:400 11px/1.5 var(--data);letter-spacing:.12em;text-transform:uppercase;color:var(--stone);pointer-events:none;text-shadow:0 1px 8px rgba(0,0,0,.6)}
+.clock b{color:var(--ivory);font-weight:500;font-variant-numeric:tabular-nums}
+
+/* hero */
+.hero{min-height:88vh;display:flex;align-items:flex-end;padding-block:140px 96px}
+.hero .wrap{width:100%}
+.eyebrow{font:400 11px/1.6 var(--data);letter-spacing:.24em;text-transform:uppercase;color:var(--brass);margin:0 0 24px}
+.hero h1{font-family:var(--display);font-weight:400;font-size:clamp(56px,13vw,184px);line-height:.86;letter-spacing:-.02em;margin:0;text-wrap:balance;text-shadow:0 2px 40px rgba(0,0,0,.35)}
+.hero h1 i{display:block;padding-left:.9em;color:var(--ivory)}
+.hero .lede{max-width:34rem;margin:36px 0 0;font-size:clamp(16px,1.6vw,19px);color:var(--ivory);text-shadow:0 1px 18px rgba(0,0,0,.6)}
+.hero .ctas{display:flex;gap:12px;flex-wrap:wrap;margin-top:36px}
+
+/* sections */
+section{padding-block:clamp(88px,14vw,180px)}
+.panel{background:linear-gradient(90deg,var(--scrim) 0%,rgba(10,12,16,.35) 62%,rgba(10,12,16,0) 100%)}
+h2{font-family:var(--display);font-weight:400;font-size:clamp(38px,6vw,76px);line-height:1;letter-spacing:-.015em;margin:0 0 28px;text-wrap:balance}
+h2 i{color:var(--brass)}
+h3{font-family:var(--display);font-weight:400;font-size:28px;line-height:1.1;margin:0}
+.col{max-width:36rem}
+.col p{margin:0 0 1.1em;color:var(--ivory)}
+.muted{color:var(--stone)}
+
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);margin-top:72px;max-width:62rem}
+.facts div{background:rgba(10,12,16,.72);padding:24px 22px;display:grid;gap:6px}
+.facts dt{font:400 10px/1.4 var(--data);letter-spacing:.22em;text-transform:uppercase;color:var(--stone)}
+.facts dd{margin:0;font-family:var(--display);font-size:36px;line-height:1;font-variant-numeric:tabular-nums}
+.facts dd small{font-family:var(--data);font-size:12px;color:var(--stone);margin-left:4px}
+@media (max-width:760px){.facts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* suites */
+.suites{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px;margin-top:64px}
+.suite{display:grid;gap:18px;align-content:start;background:rgba(10,12,16,.7);border:1px solid var(--rule);padding:0 0 26px;transition:border-color .4s,transform .6s cubic-bezier(.2,.7,.2,1)}
+.suite:hover{border-color:rgba(201,164,108,.6);transform:translateY(-6px)}
+.view{aspect-ratio:4/5;max-width:100%;position:relative;overflow:hidden}
+.view::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 55%,rgba(10,12,16,.85))}
+.view span{position:absolute;left:18px;bottom:14px;z-index:1;font:400 10px/1.4 var(--data);letter-spacing:.2em;text-transform:uppercase;color:var(--ivory)}
+.v1{background:radial-gradient(circle at 70% 38%,#f3c79a 0 3%,transparent 4%),linear-gradient(#2a3b55 0%,#b9867a 48%,#e4b48f 52%,#2c3a4c 53%,#0f1722 100%)}
+.v2{background:radial-gradient(ellipse at 50% 100%,#8db7ae55,transparent 60%),linear-gradient(#0d1a24 0%,#24414a 50%,#173039 51%,#060b10 100%)}
+.v3{background:radial-gradient(circle at 30% 30%,#fff7e0 0 1.5%,transparent 2%),radial-gradient(circle at 60% 18%,#fff 0 .4%,transparent .6%),radial-gradient(circle at 80% 40%,#fff 0 .4%,transparent .6%),linear-gradient(#05070d 0%,#141c33 50%,#0c1220 51%,#030508 100%)}
+.view i{position:absolute;inset:auto 0 0 auto;width:44%;height:70%;background:#07090c;clip-path:polygon(30% 0,100% 0,100% 100%,0 100%,12% 60%,8% 30%)}
+.view b{position:absolute;width:6px;height:9px;background:#ffcf8a;box-shadow:0 0 14px 4px #ffb85c88;z-index:0}
+.suite .meta{padding:0 22px;display:grid;gap:10px}
+.suite .spec{display:flex;flex-wrap:wrap;gap:6px 16px;font:400 11px/1.5 var(--data);letter-spacing:.12em;text-transform:uppercase;color:var(--stone)}
+.suite p{margin:0;font-size:15px;color:var(--ivory)}
+.suite .price{font-family:var(--display);font-size:22px}
+.suite .price small{font:400 11px var(--data);letter-spacing:.14em;color:var(--stone);text-transform:uppercase;margin-left:6px}
+@media (max-width:900px){.suites{grid-template-columns:1fr;max-width:30rem}}
+
+/* ritual */
+.ritual{list-style:none;margin:64px 0 0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--rule);max-width:70rem}
+.ritual li{padding:28px 24px 0 0;display:grid;gap:10px;align-content:start;min-width:0}
+.ritual .n{font:400 11px var(--data);letter-spacing:.2em;color:var(--brass)}
+.ritual .temp{font-family:var(--display);font-size:clamp(44px,5vw,64px);line-height:1;font-variant-numeric:tabular-nums}
+.ritual .temp small{font-size:.4em;vertical-align:top;margin-left:2px}
+.ritual p{margin:0;font-size:14px;color:var(--stone)}
+.ritual strong{color:var(--ivory);font-weight:600}
+@media (max-width:820px){.ritual{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:28px}}
+
+/* menu */
+.menu{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:72px;align-items:start}
+.courses{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule)}
+.courses li{display:grid;grid-template-columns:2.4rem minmax(0,1fr);gap:16px;padding:18px 0;border-bottom:1px solid var(--rule)}
+.courses .n{font:400 11px/2.2 var(--data);color:var(--brass)}
+.courses h4{margin:0;font-family:var(--display);font-weight:400;font-size:21px;line-height:1.25}
+.courses p{margin:4px 0 0;font-size:14px;color:var(--stone)}
+@media (max-width:860px){.menu{grid-template-columns:1fr;gap:40px}}
+
+/* day */
+.day{display:grid;gap:0;margin-top:56px;max-width:46rem;border-left:1px solid var(--rule)}
+.day div{display:grid;grid-template-columns:5.5rem minmax(0,1fr);gap:20px;padding:0 0 30px 24px;position:relative}
+.day div::before{content:"";position:absolute;left:-4px;top:9px;width:7px;height:7px;border-radius:50%;background:var(--brass)}
+.day time{font:500 13px/1.9 var(--data);color:var(--ivory);font-variant-numeric:tabular-nums}
+.day p{margin:0;color:var(--ivory)}
+.day p span{display:block;color:var(--stone);font-size:14px}
+
+/* reserve */
+.reserve{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,26rem);gap:64px;align-items:start}
+form.book{background:rgba(12,15,20,.86);border:1px solid var(--rule);padding:32px 28px;display:grid;gap:18px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.field{display:grid;gap:6px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label{font:400 10px/1.4 var(--data);letter-spacing:.22em;text-transform:uppercase;color:var(--stone)}
+input,select{font:400 15px var(--body);color:var(--ivory);background:transparent;border:0;border-bottom:1px solid var(--rule);padding:8px 0;border-radius:0;width:100%;min-width:0}
+input:focus,select:focus{outline:none;border-bottom-color:var(--brass)}
+select option{background:var(--basalt-2);color:var(--ivory)}
+.sum{border-top:1px solid var(--rule);padding-top:16px;display:grid;gap:6px;font:400 12px/1.6 var(--data);color:var(--stone);font-variant-numeric:tabular-nums}
+.sum div{display:flex;justify-content:space-between;gap:12px}
+.sum .total{color:var(--ivory);font-size:14px;padding-top:8px;border-top:1px solid var(--rule);margin-top:6px}
+.sum .total b{font-family:var(--display);font-size:24px;font-weight:400}
+.note{font-size:12px;color:var(--stone);margin:0}
+.confirm{border:1px solid var(--seaglass);color:var(--ivory);padding:14px 16px;font-size:14px}
+.err{color:#f2a48f;font-size:13px;margin:0}
+@media (max-width:900px){.reserve{grid-template-columns:1fr}}
+
+footer{padding-block:72px calc(80px + env(safe-area-inset-bottom,0px));background:linear-gradient(rgba(10,12,16,0),var(--basalt) 40%)}
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:32px;font-size:13px;color:var(--stone)}
+footer .mark{font-size:16px;color:var(--ivory)}
+footer p{margin:6px 0 0}
+.coords{font-family:var(--data);letter-spacing:.1em}
+
+.rise{transition:transform 1.1s cubic-bezier(.2,.7,.2,1),opacity 1.1s}
+.rise.pre{transform:translateY(24px);opacity:.35}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.rise,.rise.pre{transform:none;opacity:1;transition:none}.suite{transition:none}}
+</style>
+
+<canvas id="sky" aria-hidden="true"></canvas>
+
+<header class="nav" id="nav">
+  <div class="wrap">
+    <a class="mark" href="#top">Obsidian Reach</a>
+    <ul>
+      <li><a href="#suites">Suites</a></li>
+      <li><a href="#baths">Thermal baths</a></li>
+      <li><a href="#table">The table</a></li>
+      <li><a href="#day">A day here</a></li>
+    </ul>
+    <a class="btn line" href="#reserve">Reserve</a>
+  </div>
+</header>
+
+<div class="clock" aria-live="off"><b id="clockTime">05:40</b> · <span id="clockPhase">First light</span><br>Atlantic <b>19°C</b> · Wind <b id="clockWind">8</b> kn NW</div>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow">Isle of Calda · 38°41′ N 27°13′ W · 140 m above the Atlantic</p>
+      <h1>Obsidian<i>Reach</i></h1>
+      <p class="lede">Twenty-eight suites cut into a basalt sea cliff. Every room faces due west, so the sun sets straight into your window. Scroll slowly; the sky follows the hours of a day here.</p>
+      <div class="ctas">
+        <a class="btn" href="#reserve">Check availability</a>
+        <a class="btn line" href="#suites">See the suites</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="about">
+    <div class="wrap rise">
+      <p class="eyebrow">The house</p>
+      <h2>Built into the rock, <i>not onto it.</i></h2>
+      <div class="col">
+        <p>The cliff formed from a lava flow roughly 12,000 years ago. We kept its face intact. Suites are carved straight back into the stone, and from the sea all you see at night is a scatter of warm windows.</p>
+        <p class="muted">Inside, it is quiet. The walls are 1.8 metres of solid rock, so rooms hold an even 21°C all year with almost no air conditioning. There are no televisions and no lobby music. Staff are on hand day and night but stay out of sight.</p>
+      </div>
+      <dl class="facts">
+        <div><dt>Suites</dt><dd>28</dd></div>
+        <div><dt>Cliff height</dt><dd>140<small>m</small></dd></div>
+        <div><dt>Guests per hectare</dt><dd>4.6</dd></div>
+        <div><dt>Thermal springs</dt><dd>3</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="panel" id="suites">
+    <div class="wrap rise">
+      <p class="eyebrow">Suites</p>
+      <h2>Three ways <i>to face the sea.</i></h2>
+      <div class="col"><p class="muted">Every suite has a private terrace, a stone soaking tub fed by the spring, and blackout shutters you open by hand.</p></div>
+      <div class="suites">
+        <article class="suite">
+          <div class="view v1"><i></i><span>View at 06:10</span></div>
+          <div class="meta">
+            <h3>Cave Suite</h3>
+            <div class="spec"><span>62 m²</span><span>Level 3–5</span><span>Sleeps 2</span></div>
+            <p>A vaulted room cut into the rock. The bed faces a single 7-metre window over the sea.</p>
+            <div class="price">€1,450<small>per night</small></div>
+          </div>
+        </article>
+        <article class="suite">
+          <div class="view v2"><i></i><b style="right:16%;top:46%"></b><span>View at 14:30</span></div>
+          <div class="meta">
+            <h3>Cliff Suite</h3>
+            <div class="spec"><span>96 m²</span><span>Level 6–8</span><span>Sleeps 3</span></div>
+            <p>A suite set right on the edge, with a cantilevered terrace and a glass-floored plunge pool 120 metres above the water.</p>
+            <div class="price">€2,200<small>per night</small></div>
+          </div>
+        </article>
+        <article class="suite">
+          <div class="view v3"><i></i><b style="right:22%;top:40%"></b><b style="right:9%;top:58%"></b><span>View at 23:00</span></div>
+          <div class="meta">
+            <h3>The Caldera</h3>
+            <div class="spec"><span>310 m²</span><span>Summit</span><span>Sleeps 6</span></div>
+            <p>The only suite on the summit, with three bedrooms, a private spring pool, an observatory dome and a chef on request.</p>
+            <div class="price">€6,800<small>per night</small></div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="baths">
+    <div class="wrap rise">
+      <p class="eyebrow">Thermal baths</p>
+      <h2>Fire, then <i>the Atlantic.</i></h2>
+      <div class="col"><p>Three springs rise through the basalt beneath the hotel. Bathe in this order, slowly. A full circuit takes about 50 minutes.</p></div>
+      <ol class="ritual">
+        <li><span class="n">STEP 1</span><span class="temp">38<small>°C</small></span><p><strong>Iron pool.</strong> Rust-red, mineral-rich water in a cave lit from below. 15 minutes.</p></li>
+        <li><span class="n">STEP 2</span><span class="temp">41<small>°C</small></span><p><strong>Steam vault.</strong> Natural steam vented from the rock. Eight minutes at most.</p></li>
+        <li><span class="n">STEP 3</span><span class="temp">12<small>°C</small></span><p><strong>Sea plunge.</strong> A tidal rock pool refilled by every wave. As long as you can stand.</p></li>
+        <li><span class="n">STEP 4</span><span class="temp">34<small>°C</small></span><p><strong>Rest pool.</strong> Open to the sky, at body temperature. Stay until you forget the time.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="panel" id="table">
+    <div class="wrap rise">
+      <div class="menu">
+        <div class="col">
+          <p class="eyebrow">The table · 14 seats</p>
+          <h2>Cooked <i>in the ground.</i></h2>
+          <p>Each morning, pots of meat and roots are lowered into a geothermal vent behind the kitchen. They come up six hours later, just before sunset. Everything else is caught or grown within sight of the dining room.</p>
+          <p class="muted">One tasting menu a night, served at 19:40. That is the time of the average sunset here over the year.</p>
+        </div>
+        <ol class="courses">
+          <li><span class="n">I</span><div><h4>Limpets, seawater butter, lava salt</h4><p>From the rocks under the sea plunge.</p></div></li>
+          <li><span class="n">II</span><div><h4>Blue mackerel cured over fig leaf</h4><p>Line-caught that afternoon.</p></div></li>
+          <li><span class="n">III</span><div><h4>Volcano-stewed beef, 6 hours in the earth</h4><p>Island cattle, kale, sweet potato.</p></div></li>
+          <li><span class="n">IV</span><div><h4>Passion fruit, sheep's curd, pink pepper</h4><p>Grown on the terraces below the cliff.</p></div></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="day">
+    <div class="wrap rise">
+      <p class="eyebrow">A day here</p>
+      <h2>The hours <i>you'll keep.</i></h2>
+      <div class="day">
+        <div><time>06:10</time><p>Sunrise behind the cliff<span>Coffee arrives at your shutters. The sea turns from black to pewter.</span></p></div>
+        <div><time>09:00</time><p>Boat to the whale grounds<span>Sperm whales feed 6 nautical miles offshore from April to October.</span></p></div>
+        <div><time>14:30</time><p>Thermal circuit<span>The baths are emptiest while most guests are at lunch.</span></p></div>
+        <div><time>19:40</time><p>Sunset and dinner<span>The sun drops into the sea directly in front of every table.</span></p></div>
+        <div><time>23:00</time><p>The observatory<span>With no light pollution, the Milky Way rises over the summit.</span></p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="reserve">
+    <div class="wrap rise">
+      <div class="reserve">
+        <div class="col">
+          <p class="eyebrow">Reserve</p>
+          <h2>Hold <i>your suite.</i></h2>
+          <p>Minimum stay is two nights, three over the summer solstice. Rates include breakfast at your shutters, the thermal circuit and the boat from Ponta Calda harbour.</p>
+          <p class="muted">The island is a 50-minute flight from Lisbon. Our launch meets every flight.</p>
+        </div>
+        <form class="book" id="book" novalidate>
+          <div class="pair">
+            <div class="field"><label for="arrive">Arrive</label><input type="date" id="arrive" value="2027-03-12"></div>
+            <div class="field"><label for="depart">Depart</label><input type="date" id="depart" value="2027-03-16"></div>
+          </div>
+          <div class="pair">
+            <div class="field"><label for="suite">Suite</label>
+              <select id="suite">
+                <option value="1450">Cave Suite</option>
+                <option value="2200" selected>Cliff Suite</option>
+                <option value="6800">The Caldera</option>
+              </select></div>
+            <div class="field"><label for="guests">Guests</label>
+              <select id="guests"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></div>
+          </div>
+          <div class="sum" id="sum"></div>
+          <p class="err" id="err" hidden></p>
+          <button class="btn" type="submit">Request this stay</button>
+          <div class="confirm" id="confirm" hidden></div>
+          <p class="note">Concept site. Requests are not sent anywhere and no payment is taken.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div><a class="mark" href="#top">Obsidian Reach</a><p>Rua do Penhasco, Ponta Calda, Isle of Calda</p></div>
+    <div><p class="coords">38°41′12″ N · 27°13′40″ W</p><p>A fictional hotel, designed as a concept.</p></div>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------------- sky ---------------- */
+  const cv = document.getElementById('sky'), ctx = cv.getContext('2d');
+  let w, h, dpr, stars = [], windows = [], cliff = [], isle = [];
+  // keyframes by scroll progress: top, mid, horizon, sea
+  const K = [
+    [0.00, '#151b33', '#4d3f60', '#e3a17f', '#1d2740'],
+    [0.22, '#24425f', '#5f8197', '#cfc6b3', '#2a4a5c'],
+    [0.42, '#1f3a52', '#4f7286', '#b7b6a4', '#22404f'],
+    [0.62, '#251a36', '#7a3f55', '#eb9b57', '#2e2236'],
+    [0.80, '#070a14', '#121a30', '#2a2f4e', '#080c16'],
+    [1.00, '#03050a', '#090e1c', '#141b33', '#04070d'],
+  ];
+  const hex = c => [1, 3, 5].map(i => parseInt(c.slice(i, i + 2), 16));
+  const mix = (a, b, t) => { const A = hex(a), B = hex(b); return `rgb(${A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(',')})`; };
+  const ss = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+  function palette(t) {
+    let i = 0; while (i < K.length - 2 && t > K[i + 1][0]) i++;
+    const a = K[i], b = K[i + 1], f = ss(a[0], b[0], t);
+    return [1, 2, 3, 4].map(j => mix(a[j], b[j], f));
+  }
+  function rng(s) { return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }; }
+
+  function build() {
+    dpr = Math.min(devicePixelRatio || 1, 1.5);
+    w = innerWidth; h = innerHeight;
+    cv.width = w * dpr; cv.height = h * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const r = rng(7);
+    stars = Array.from({ length: Math.round(w * h / 2600) }, () => ({ x: r() * w, y: r() * h * 0.62, s: r() * 1.3 + .2, p: r() * 6.3 }));
+    // cliff profile on the right (normalised: x from left edge of cliff, y from top)
+    const narrow = w < 760, cx0 = narrow ? 0.5 : 0.6;
+    cliff = []; const steps = 28;
+    for (let i = 0; i <= steps; i++) {
+      const f = i / steps;
+      const top = 0.2 + 0.1 * Math.pow(1 - f, 2) + (r() - .5) * 0.025;
+      cliff.push({ x: (cx0 + (1 - cx0) * Math.pow(f, .8)) * w + (i === 0 ? 0 : (r() - .5) * 10), y: top * h });
+    }
+    cliff.edge = cx0 * w;
+    // lit suite windows on the face: 28 suites
+    windows = []; let tries = 0;
+    while (windows.length < 28 && tries++ < 2000) {
+      const x = cliff.edge + 18 + r() * (w - cliff.edge - 30), y = h * (0.28 + r() * 0.32);
+      const f = (x - cliff.edge) / (w - cliff.edge), lim = h * (0.2 + 0.1 * Math.pow(1 - f, 2)) + 24;
+      if (y < lim) continue;
+      if (windows.some(q => Math.abs(q.x - x) < 22 && Math.abs(q.y - y) < 16)) continue;
+      windows.push({ x, y, on: r(), fl: r() * 6.3 });
+    }
+    isle = []; for (let i = 0; i <= 20; i++) isle.push(Math.sin(i / 20 * Math.PI) * (0.025 + r() * .01));
+  }
+
+  let target = 0, prog = 0, mx = 0, my = 0, pmx = 0, pmy = 0, tt = 0;
+  function readScroll() {
+    const max = document.documentElement.scrollHeight - innerHeight;
+    target = max > 0 ? Math.min(1, scrollY / max) : 0;
+  }
+
+  function draw() {
+    const t = prog, [top, mid, hor, sea] = palette(t);
+    const horizonY = h * 0.64 - t * h * 0.04;
+    const px = pmx * 14, py = pmy * 8;
+
+    let g = ctx.createLinearGradient(0, 0, 0, horizonY);
+    g.addColorStop(0, top); g.addColorStop(0.62, mid); g.addColorStop(1, hor);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, w, horizonY + 1);
+
+    // stars
+    const night = ss(0.66, 0.86, t);
+    if (night > 0) {
+      ctx.fillStyle = '#e9ecff';
+      for (const s of stars) { ctx.globalAlpha = night * (reduce ? .7 : .45 + .4 * Math.sin(tt * 1.1 + s.p)); ctx.fillRect(s.x - px * .3, s.y, s.s, s.s); }
+      ctx.globalAlpha = 1;
+    }
+
+    // sun arcs from horizon (dawn) up and back down into the sea (~0.66); moon after
+    const sunA = t / 0.66, sunVis = t < 0.7;
+    const sx = w * (0.18 + 0.5 * sunA) - px, sy = horizonY - Math.sin(Math.min(1, sunA) * Math.PI) * h * 0.42 + 6;
+    if (sunVis) {
+      const gl = ctx.createRadialGradient(sx, sy, 0, sx, sy, h * 0.35);
+      gl.addColorStop(0, 'rgba(255,214,160,.55)'); gl.addColorStop(1, 'rgba(255,190,120,0)');
+      ctx.fillStyle = gl; ctx.fillRect(0, 0, w, horizonY);
+      ctx.fillStyle = '#fff1d8'; ctx.beginPath(); ctx.arc(sx, sy, Math.max(10, h * 0.018), 0, 6.3); ctx.fill();
+    }
+    const moon = ss(0.74, 0.9, t);
+    if (moon > 0) {
+      const mxp = w * 0.24 - px * .5, myp = h * (0.36 - 0.12 * moon);
+      ctx.globalAlpha = moon;
+      const mg = ctx.createRadialGradient(mxp, myp, 0, mxp, myp, 90);
+      mg.addColorStop(0, 'rgba(200,215,255,.25)'); mg.addColorStop(1, 'rgba(200,215,255,0)');
+      ctx.fillStyle = mg; ctx.fillRect(mxp - 90, myp - 90, 180, 180);
+      ctx.fillStyle = '#e8ecf6'; ctx.beginPath(); ctx.arc(mxp, myp, 13, 0, 6.3); ctx.fill();
+      ctx.fillStyle = top; ctx.beginPath(); ctx.arc(mxp + 5, myp - 3, 12, 0, 6.3); ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+
+    // distant island
+    ctx.fillStyle = mix('#0a0c10', top.startsWith('rgb') ? '#2a3550' : top, .5);
+    ctx.fillStyle = 'rgba(10,12,18,.55)';
+    ctx.beginPath(); ctx.moveTo(w * 0.04 - px * .4, horizonY);
+    isle.forEach((v, i) => ctx.lineTo(w * (0.04 + i / 20 * 0.22) - px * .4, horizonY - v * h));
+    ctx.closePath(); ctx.fill();
+
+    // sea
+    g = ctx.createLinearGradient(0, horizonY, 0, h);
+    g.addColorStop(0, hor); g.addColorStop(0.08, sea); g.addColorStop(1, '#030407');
+    ctx.fillStyle = g; ctx.fillRect(0, horizonY, w, h - horizonY);
+    // shimmer under sun / moon
+    const refX = sunVis ? sx : w * 0.24 - px * .5, refA = sunVis ? 0.55 * (1 - ss(0.6, 0.7, t)) : moon * .35;
+    if (refA > 0.01) {
+      for (let i = 0; i < 46; i++) {
+        const fy = i / 46, y = horizonY + 3 + fy * fy * (h - horizonY);
+        const spread = 18 + fy * w * 0.22;
+        const off = reduce ? 0 : Math.sin(tt * 1.6 + i * 1.7) * spread * .5;
+        ctx.fillStyle = sunVis ? `rgba(255,220,170,${refA * (1 - fy) })` : `rgba(210,222,255,${refA * (1 - fy)})`;
+        ctx.fillRect(refX + off - spread * .25, y, spread * (0.25 + .25 * Math.abs(Math.sin(i * 3.1 + tt * .8))), 1.2 + fy * 2);
+      }
+    }
+
+    // cliff
+    const lift = -t * h * 0.06;
+    ctx.save(); ctx.translate(-px * 1.2, lift - py);
+    ctx.beginPath(); ctx.moveTo(cliff.edge - 30, h * 1.1);
+    ctx.lineTo(cliff.edge - 6, horizonY + 8);
+    cliff.forEach(p => ctx.lineTo(p.x, p.y));
+    ctx.lineTo(w + 40, cliff[cliff.length - 1].y); ctx.lineTo(w + 40, h * 1.1); ctx.closePath();
+    g = ctx.createLinearGradient(cliff.edge, 0, w, 0);
+    g.addColorStop(0, '#0b0d12'); g.addColorStop(1, '#050608');
+    ctx.fillStyle = g; ctx.fill();
+    // rim light on the cliff edge, warm at sunset
+    ctx.strokeStyle = mix('#2a2f3a', '#e19a5c', ss(0.5, 0.64, t) * (1 - ss(0.68, 0.76, t)));
+    ctx.globalAlpha = .7; ctx.lineWidth = 1.2; ctx.beginPath();
+    ctx.moveTo(cliff.edge - 6, horizonY + 8); cliff.forEach(p => ctx.lineTo(p.x, p.y)); ctx.stroke(); ctx.globalAlpha = 1;
+
+    // windows light up across dusk, a few stay lit at dawn
+    const lit = Math.max(ss(0.56, 0.74, t), 0.45 * (1 - ss(0.02, 0.14, t)));
+    for (const wd of windows) {
+      const on = lit * (wd.on < .8 || t < 0.95 ? 1 : 0.2) * (lit > wd.on * .9 ? 1 : lit * .5);
+      if (on < 0.02) continue;
+      const fl = reduce ? 1 : .9 + .1 * Math.sin(tt * 2 + wd.fl);
+      const wg = ctx.createRadialGradient(wd.x, wd.y, 0, wd.x, wd.y, 20);
+      wg.addColorStop(0, `rgba(255,180,90,${.35 * on * fl})`); wg.addColorStop(1, 'rgba(255,180,90,0)');
+      ctx.fillStyle = wg; ctx.fillRect(wd.x - 20, wd.y - 20, 40, 40);
+      ctx.fillStyle = `rgba(255,214,150,${on * fl})`; ctx.fillRect(wd.x - 3, wd.y - 4, 6, 8);
+    }
+    ctx.restore();
+
+    // vignette for text legibility on the left
+    g = ctx.createLinearGradient(0, 0, w, 0);
+    g.addColorStop(0, 'rgba(6,8,12,.35)'); g.addColorStop(.6, 'rgba(6,8,12,0)');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+  }
+
+  /* clock */
+  const phases = [[0, 'First light'], [0.14, 'Morning'], [0.36, 'Afternoon'], [0.56, 'Golden hour'], [0.68, 'Dusk'], [0.8, 'Night']];
+  const elT = document.getElementById('clockTime'), elP = document.getElementById('clockPhase'), elW = document.getElementById('clockWind');
+  let lastMin = -1;
+  function clock() {
+    const mins = Math.round(5 * 60 + 40 + prog * 19 * 60) % 1440;
+    if (mins === lastMin) return; lastMin = mins;
+    elT.textContent = String(Math.floor(mins / 60)).padStart(2, '0') + ':' + String(mins % 60).padStart(2, '0');
+    elP.textContent = phases.filter(p => prog >= p[0]).pop()[1];
+    elW.textContent = Math.round(8 + 6 * Math.sin(prog * Math.PI));
+  }
+
+  let last = performance.now();
+  function frame(now) {
+    const dt = Math.min(.05, (now - last) / 1000); last = now; tt += dt;
+    prog += (target - prog) * (reduce ? 1 : Math.min(1, dt * 4));
+    pmx += (mx - pmx) * Math.min(1, dt * 3); pmy += (my - pmy) * Math.min(1, dt * 3);
+    draw(); clock();
+    requestAnimationFrame(frame);
+  }
+  addEventListener('resize', build);
+  addEventListener('scroll', () => { readScroll(); nav.classList.toggle('solid', scrollY > 40); }, { passive: true });
+  if (!reduce) addEventListener('pointermove', e => { mx = e.clientX / innerWidth - .5; my = e.clientY / innerHeight - .5; }, { passive: true });
+  const nav = document.getElementById('nav');
+  build(); readScroll(); prog = target; requestAnimationFrame(frame);
+
+  /* gentle rise-in (content is visible at rest; only dimmed slightly before it enters) */
+  if (!reduce && 'IntersectionObserver' in window) {
+    const els = [...document.querySelectorAll('.rise')];
+    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.remove('pre'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -10% 0px' });
+    els.forEach(el => { if (el.getBoundingClientRect().top > innerHeight) { el.classList.add('pre'); io.observe(el); } });
+  }
+
+  /* booking */
+  const $ = id => document.getElementById(id);
+  const fmt = n => '€' + n.toLocaleString('en-GB');
+  function nights() { const a = new Date($('arrive').value), b = new Date($('depart').value); return Math.round((b - a) / 864e5); }
+  function quote() {
+    const n = nights(), rate = +$('suite').value, guests = +$('guests').value;
+    const cap = { 1450: 2, 2200: 3, 6800: 6 }[rate];
+    let err = '';
+    if (!(n > 0)) err = 'Your departure date needs to be after your arrival date.';
+    else if (n < 2) err = 'The minimum stay is two nights. Move your departure date one day later.';
+    else if (guests > cap) err = `This suite sleeps ${cap}. Choose a larger suite or fewer guests.`;
+    $('err').hidden = !err; $('err').textContent = err;
+    if (err) { $('sum').innerHTML = ''; return null; }
+    const sub = n * rate, tax = Math.round(n * guests * 2), svc = Math.round(sub * 0.1);
+    $('sum').innerHTML = `<div><span>${fmt(rate)} × ${n} nights</span><span>${fmt(sub)}</span></div>
+      <div><span>Service, 10%</span><span>${fmt(svc)}</span></div>
+      <div><span>Island tourist tax (€2 per guest per night)</span><span>${fmt(tax)}</span></div>
+      <div class="total"><span>Total</span><b>${fmt(sub + svc + tax)}</b></div>`;
+    return sub + svc + tax;
+  }
+  ['arrive', 'depart', 'suite', 'guests'].forEach(id => $(id).addEventListener('input', () => { $('confirm').hidden = true; quote(); }));
+  $('book').addEventListener('submit', e => {
+    e.preventDefault();
+    const total = quote(); if (total == null) return;
+    const ref = 'OR-' + Math.random().toString(36).slice(2, 7).toUpperCase();
+    const suite = $('suite').selectedOptions[0].textContent;
+    $('confirm').hidden = false;
+    $('confirm').textContent = `${suite} held for ${nights()} nights, reference ${ref}. In a live site, the concierge would now confirm by email within the hour.`;
+  });
+  quote();
+})();
+</script>
