@@ -1,0 +1,406 @@
+<title>Slingwell</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;800&family=Space+Mono:wght@400;700&display=swap">
+<style>
+/* Layout: full-bleed canvas; HUD pinned to the top edge; one centered card for menu and results. Deliberately single dark theme (deep space). */
+:root{
+  --void:#060a19;
+  --ink:#e9edff;
+  --dim:#8790b6;
+  --flare:#ffb547;
+  --goal:#5ef0c8;
+  --danger:#ff5d73;
+  --card:rgba(12,18,40,.86);
+  --line:rgba(135,144,182,.28);
+  --display:"Unbounded","Arial Black",system-ui,sans-serif;
+  --mono:"Space Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+html,body{height:100%}
+[hidden]{display:none!important}
+body{margin:0;background:var(--void);color:var(--ink);font-family:var(--mono);overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block;cursor:crosshair}
+.hud{position:fixed;top:0;left:0;right:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding-top:calc(12px + env(safe-area-inset-top,0px));
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  pointer-events:none;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.hud .stats{display:flex;gap:18px;flex-wrap:wrap}
+.hud b{color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums}
+.hud button{pointer-events:auto}
+button{font:inherit;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:999px;padding:6px 12px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+button:focus-visible{outline:2px solid var(--goal);outline-offset:2px}
+.overlay{position:fixed;inset:0;z-index:3;display:grid;place-items:center;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px;
+  background:radial-gradient(ellipse at center,rgba(6,10,25,.25),rgba(6,10,25,.7))}
+.card{max-width:26rem;width:100%;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:28px 24px;display:grid;gap:14px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--flare);margin:0}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(28px,8vw,40px);line-height:1;margin:0;letter-spacing:-.01em;text-wrap:balance}
+h1 em{font-style:normal;color:var(--goal)}
+.card p{margin:0;font-size:13px;line-height:1.6;color:var(--dim)}
+.card p strong{color:var(--ink);font-weight:700}
+.stars{font-family:var(--display);font-size:26px;letter-spacing:.2em;color:var(--flare)}
+.stars span{color:var(--line)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.primary{background:var(--goal);color:#04121a;border-color:var(--goal);font-weight:700;padding:10px 20px}
+.ghost{color:var(--dim)}
+.hint{position:fixed;left:0;right:0;bottom:0;z-index:2;text-align:center;font-size:12px;letter-spacing:.08em;color:var(--dim);pointer-events:none;
+  padding-bottom:calc(14px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+@media (prefers-reduced-motion:reduce){.card{backdrop-filter:none}}
+</style>
+
+<canvas id="c" aria-label="Slingwell playfield"></canvas>
+<div class="hud">
+  <div class="stats">
+    <span>Level <b id="hLevel">01</b></span>
+    <span>Shots <b id="hShots">0</b></span>
+    <span>Best <b id="hBest">01</b></span>
+  </div>
+  <button id="mute" type="button" aria-pressed="false">Sound on</button>
+</div>
+<div class="hint" id="hint">Pull back anywhere, release to launch. Tap mid-flight to recall.</div>
+
+<div class="overlay" id="overlay">
+  <div class="card" id="card">
+    <p class="eyebrow">Gravity slingshot</p>
+    <h1>Sling<em>well</em></h1>
+    <p>Pull back anywhere on the screen to aim your probe, then let go. Planets bend its path. Use their pull to curve into the <strong>green ring</strong>.</p>
+    <p>Every level is generated and then brute-force checked by the game so a solution exists.</p>
+    <div class="row">
+      <button class="primary" id="go" type="button">Launch</button>
+      <button class="ghost" id="reset" type="button" hidden>Restart at level 1</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+  const $ = id => document.getElementById(id);
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---------- constants (world units: 1 unit = shorter screen side) ----------
+  const G = 0.02, DT = 1 / 120, MAXV = 1.1, PULL = 2.2, FLIGHT_LIMIT = 12;
+  const HUES = ['#ff7a59', '#c58bff', '#4fb3ff', '#ffd166', '#ff5fa2', '#7ce38b'];
+
+  let Wpx, Hpx, S, W, H, dpr, landscape, stars = [];
+  const st = { level: 1, best: 1, shots: 0, phase: 'menu', lvl: null, probe: null, vel: null,
+               trail: [], parts: [], aim: null, flightT: 0, deadT: 0, t: 0 };
+
+  // ---------- storage (per-viewer convenience only) ----------
+  const load = () => { try { return parseInt(localStorage.getItem('slingwell.best') || '1', 10) || 1; } catch { return 1; } };
+  const save = v => { try { localStorage.setItem('slingwell.best', String(v)); } catch {} };
+
+  // ---------- seeded rng ----------
+  function rng(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+
+  // ---------- physics ----------
+  function step(p, v, planets, dt) {
+    let ax = 0, ay = 0;
+    for (const q of planets) {
+      const dx = q.x - p.x, dy = q.y - p.y, d2 = dx * dx + dy * dy, d = Math.sqrt(d2) || 1e-6;
+      const a = G * q.m / (d2 + 1e-4); ax += a * dx / d; ay += a * dy / d;
+    }
+    v.x += ax * dt; v.y += ay * dt; p.x += v.x * dt; p.y += v.y * dt;
+  }
+  function check(p, lvl) {
+    if (dist(p, lvl.goal) < lvl.goal.r) return 'goal';
+    for (const q of lvl.planets) if (dist(p, q) < q.r) return 'crash';
+    if (p.x < -0.3 || p.x > W + 0.3 || p.y < -0.3 || p.y > H + 0.3) return 'out';
+    return null;
+  }
+  function solvable(lvl) {
+    for (let s = 0; s < 8; s++) {
+      const sp = 0.25 + (MAXV - 0.25) * s / 7;
+      for (let k = 0; k < 90; k++) {
+        const ang = k / 90 * Math.PI * 2;
+        const p = { x: lvl.start.x, y: lvl.start.y }, v = { x: Math.cos(ang) * sp, y: Math.sin(ang) * sp };
+        for (let i = 0; i < 600; i++) { step(p, v, lvl.planets, 1 / 60); const r = check(p, lvl); if (r) { if (r === 'goal') return true; break; } }
+      }
+    }
+    return false;
+  }
+  function segBlocked(a, b, planets) {
+    const dx = b.x - a.x, dy = b.y - a.y, L2 = dx * dx + dy * dy;
+    return planets.some(q => { const t = Math.max(0, Math.min(1, ((q.x - a.x) * dx + (q.y - a.y) * dy) / L2));
+      return Math.hypot(a.x + dx * t - q.x, a.y + dy * t - q.y) < q.r + 0.02; });
+  }
+
+  // ---------- level generation ----------
+  function genLevel(n) {
+    const L = Math.max(W, H), C = Math.min(W, H);
+    const map = (a, b) => landscape ? { x: a, y: b } : { x: b, y: H - a };
+    let fallback = null;
+    for (let attempt = 0; attempt < 80; attempt++) {
+      const r = rng(n * 9973 + attempt * 131 + 7);
+      const start = map(0.11 * L, C * (0.25 + 0.5 * r()));
+      const goal = map(0.89 * L, C * (0.15 + 0.7 * r())); goal.r = 0.045;
+      const count = Math.min(1 + Math.floor((n + 1) / 2), 7);
+      const planets = [];
+      for (let tries = 0; planets.length < count && tries < 500; tries++) {
+        const rad = 0.035 + 0.05 * r();
+        const p = map(L * (0.24 + 0.52 * r()), C * (0.08 + 0.84 * r()));
+        p.r = rad; p.m = (rad / 0.06) ** 2 * (0.8 + 0.7 * r()); p.hue = HUES[Math.floor(r() * HUES.length)]; p.spin = r() * 6.28;
+        if (dist(p, start) < rad + 0.14 || dist(p, goal) < rad + 0.14) continue;
+        if (planets.some(q => dist(p, q) < p.r + q.r + 0.07)) continue;
+        planets.push(p);
+      }
+      const lvl = { start, goal, planets };
+      fallback = fallback || lvl;
+      if (n >= 4 && !segBlocked(start, goal, planets)) continue; // later levels: no straight shots
+      if (solvable(lvl)) return lvl;
+    }
+    return fallback;
+  }
+
+  // ---------- setup / resize ----------
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    Wpx = innerWidth; Hpx = innerHeight;
+    cv.width = Wpx * dpr; cv.height = Hpx * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    S = Math.min(Wpx, Hpx); W = Wpx / S; H = Hpx / S; landscape = Wpx >= Hpx;
+    const r = rng(42); stars = [];
+    const nStars = Math.round(Wpx * Hpx / 4000);
+    for (let i = 0; i < nStars; i++) stars.push({ x: r() * Wpx, y: r() * Hpx, s: r() * 1.4 + 0.2, p: r() * 6.28 });
+    buildLevel();
+  }
+  function buildLevel() {
+    st.lvl = genLevel(st.level);
+    resetProbe();
+  }
+  function resetProbe() {
+    st.probe = { x: st.lvl.start.x, y: st.lvl.start.y }; st.vel = { x: 0, y: 0 };
+    st.trail = []; st.aim = null; st.flightT = 0;
+    if (st.phase !== 'menu' && st.phase !== 'won') st.phase = 'ready';
+  }
+  const pad = n => String(n).padStart(2, '0');
+  function hud() { $('hLevel').textContent = pad(st.level); $('hShots').textContent = st.shots; $('hBest').textContent = pad(st.best); }
+
+  // ---------- audio ----------
+  let ac = null, muted = false;
+  function tone(f, d, type = 'sine', g = 0.07, f2) {
+    if (muted || !ac) return;
+    const t = ac.currentTime, o = ac.createOscillator(), gn = ac.createGain();
+    o.type = type; o.frequency.setValueAtTime(f, t); if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + d);
+    gn.gain.setValueAtTime(g, t); gn.gain.exponentialRampToValueAtTime(0.0001, t + d);
+    o.connect(gn).connect(ac.destination); o.start(t); o.stop(t + d);
+  }
+  $('mute').addEventListener('click', () => { muted = !muted; $('mute').textContent = muted ? 'Sound off' : 'Sound on'; $('mute').setAttribute('aria-pressed', String(muted)); });
+
+  // ---------- particles ----------
+  function burst(x, y, color, n, speed) {
+    n = reduce ? Math.ceil(n / 3) : n;
+    for (let i = 0; i < n; i++) { const a = Math.random() * 6.28, s = speed * (0.3 + Math.random());
+      st.parts.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 1, color }); }
+  }
+
+  // ---------- flow ----------
+  function launch(v) {
+    st.vel = v; st.phase = 'flying'; st.shots++; st.flightT = 0; hud();
+    tone(220, 0.25, 'triangle', 0.08, 660);
+  }
+  function crash() {
+    burst(st.probe.x, st.probe.y, '#ff5d73', 40, 0.5); st.phase = 'dead'; st.deadT = 0.9;
+    tone(140, 0.35, 'sawtooth', 0.06, 50);
+  }
+  function win() {
+    burst(st.lvl.goal.x, st.lvl.goal.y, '#5ef0c8', 70, 0.6); st.phase = 'won';
+    [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => tone(f, 0.25, 'sine', 0.06), i * 90));
+    const starsEarned = st.shots === 1 ? 3 : st.shots <= 3 ? 2 : 1;
+    if (st.level + 1 > st.best) { st.best = st.level + 1; save(st.best); }
+    hud();
+    setTimeout(() => showCard('won', starsEarned), 650);
+  }
+  function showCard(kind, starsEarned) {
+    const card = $('card');
+    if (kind === 'won') {
+      card.innerHTML = `<p class="eyebrow">Orbit closed</p>
+        <h1>Level ${pad(st.level)} <em>cleared</em></h1>
+        <div class="stars" aria-label="${starsEarned} of 3 stars">${'★'.repeat(starsEarned)}<span>${'★'.repeat(3 - starsEarned)}</span></div>
+        <p>${st.shots} shot${st.shots === 1 ? '' : 's'}. One shot earns three stars. Next level adds ${st.level % 2 ? 'another planet' : 'tighter angles'}.</p>
+        <div class="row"><button class="primary" id="next" type="button">Next level</button>
+        <button class="ghost" id="replay" type="button">Replay</button></div>`;
+      $('next').onclick = () => { st.level++; startLevel(); };
+      $('replay').onclick = () => startLevel();
+    }
+    $('overlay').hidden = false;
+    card.querySelector('.primary')?.focus();
+  }
+  function startLevel() {
+    $('overlay').hidden = true; st.shots = 0; st.phase = 'ready'; buildLevel(); hud();
+  }
+  $('go').addEventListener('click', () => {
+    if (!ac) { try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch {} }
+    startLevel();
+  });
+  $('reset').addEventListener('click', () => { st.level = 1; st.best = 1; save(1); hud(); startLevel(); });
+
+  // ---------- input ----------
+  cv.addEventListener('pointerdown', e => {
+    if (st.phase === 'flying') { resetProbe(); return; }
+    if (st.phase !== 'ready') return;
+    st.aim = { x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY };
+    try { cv.setPointerCapture(e.pointerId); } catch {}
+  });
+  cv.addEventListener('pointermove', e => { if (st.aim) { st.aim.x = e.clientX; st.aim.y = e.clientY; } });
+  const release = () => {
+    if (!st.aim) return; const v = aimVel(); st.aim = null;
+    if (v && Math.hypot(v.x, v.y) > 0.08) launch(v);
+  };
+  cv.addEventListener('pointerup', release); cv.addEventListener('pointercancel', () => { st.aim = null; });
+  addEventListener('keydown', e => { if (e.key === 'r' || e.key === 'R') { if (st.phase === 'flying' || st.phase === 'ready') resetProbe(); } });
+  function aimVel() {
+    const a = st.aim; if (!a) return null;
+    const dx = (a.x0 - a.x) / S, dy = (a.y0 - a.y) / S, len = Math.hypot(dx, dy);
+    if (len < 1e-3) return null;
+    const sp = Math.min(len * PULL, MAXV);
+    return { x: dx / len * sp, y: dy / len * sp };
+  }
+
+  // ---------- update ----------
+  function update(dt) {
+    st.t += dt;
+    if (st.phase === 'flying') {
+      let left = dt;
+      while (left > 0) {
+        const h = Math.min(DT, left); left -= h;
+        step(st.probe, st.vel, st.lvl.planets, h); st.flightT += h;
+        const r = check(st.probe, st.lvl);
+        if (r === 'goal') { win(); break; }
+        if (r === 'crash') { crash(); break; }
+        if (r === 'out' || st.flightT > FLIGHT_LIMIT) { st.phase = 'dead'; st.deadT = 0.3; tone(300, 0.2, 'sine', 0.04, 120); break; }
+      }
+      st.trail.push({ x: st.probe.x, y: st.probe.y }); if (st.trail.length > 140) st.trail.shift();
+    } else if (st.phase === 'dead') {
+      st.deadT -= dt; if (st.deadT <= 0) { st.phase = 'ready'; resetProbe(); }
+    }
+    for (const p of st.parts) { p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= 0.97; p.vy *= 0.97; p.life -= dt * 1.2; }
+    st.parts = st.parts.filter(p => p.life > 0);
+  }
+
+  // ---------- render ----------
+  const X = x => x * S, Y = y => y * S;
+  function draw() {
+    const g = ctx.createRadialGradient(Wpx * 0.5, Hpx * 0.4, 0, Wpx * 0.5, Hpx * 0.5, Math.max(Wpx, Hpx) * 0.8);
+    g.addColorStop(0, '#0f1736'); g.addColorStop(1, '#060a19');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, Wpx, Hpx);
+
+    for (const s of stars) {
+      ctx.globalAlpha = reduce ? 0.6 : 0.35 + 0.35 * Math.sin(st.t * 1.3 + s.p);
+      ctx.fillStyle = '#cfd6ff'; ctx.fillRect(s.x, s.y, s.s, s.s);
+    }
+    ctx.globalAlpha = 1;
+    const lvl = st.lvl; if (!lvl) return;
+
+    // gravity field contours
+    ctx.setLineDash([2, 6]); ctx.lineWidth = 1;
+    for (const q of lvl.planets) for (const a of [0.6, 0.25, 0.1]) {
+      const r = Math.sqrt(G * q.m / a); if (r <= q.r * 1.15) continue;
+      ctx.strokeStyle = `rgba(135,144,182,${0.1 + a * 0.25})`;
+      ctx.beginPath(); ctx.arc(X(q.x), Y(q.y), r * S, 0, 6.283); ctx.stroke();
+    }
+    ctx.setLineDash([]);
+
+    // planets
+    for (const q of lvl.planets) {
+      const px = X(q.x), py = Y(q.y), pr = q.r * S;
+      const glow = ctx.createRadialGradient(px, py, pr * 0.8, px, py, pr * 2.2);
+      glow.addColorStop(0, q.hue + '55'); glow.addColorStop(1, q.hue + '00');
+      ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(px, py, pr * 2.2, 0, 6.283); ctx.fill();
+      const body = ctx.createRadialGradient(px - pr * 0.4, py - pr * 0.4, pr * 0.1, px, py, pr);
+      body.addColorStop(0, '#ffffff'); body.addColorStop(0.18, q.hue); body.addColorStop(1, '#0a0f24');
+      ctx.fillStyle = body; ctx.beginPath(); ctx.arc(px, py, pr, 0, 6.283); ctx.fill();
+      // bands
+      ctx.save(); ctx.beginPath(); ctx.arc(px, py, pr, 0, 6.283); ctx.clip();
+      ctx.strokeStyle = 'rgba(255,255,255,.08)'; ctx.lineWidth = pr * 0.12;
+      for (let i = -2; i <= 2; i++) { ctx.beginPath(); ctx.ellipse(px, py + i * pr * 0.38, pr * 1.2, pr * 0.12, q.spin * 0.1, 0, 6.283); ctx.stroke(); }
+      ctx.restore();
+    }
+
+    // goal ring
+    const gx = X(lvl.goal.x), gy = Y(lvl.goal.y), gr = lvl.goal.r * S;
+    const pulse = reduce ? 0 : Math.sin(st.t * 3) * 0.15;
+    ctx.strokeStyle = '#5ef0c8'; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.arc(gx, gy, gr * (1 + pulse * 0.3), 0, 6.283); ctx.stroke();
+    ctx.globalAlpha = 0.35 + pulse; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(gx, gy, gr * 1.6, 0, 6.283); ctx.stroke(); ctx.globalAlpha = 1;
+    ctx.fillStyle = 'rgba(94,240,200,.12)'; ctx.beginPath(); ctx.arc(gx, gy, gr, 0, 6.283); ctx.fill();
+
+    // launch pad
+    const sx = X(lvl.start.x), sy = Y(lvl.start.y);
+    ctx.strokeStyle = 'rgba(255,181,71,.5)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(sx, sy, 0.03 * S, 0, 6.283); ctx.stroke();
+
+    // trail
+    if (st.trail.length > 1) {
+      for (let i = 1; i < st.trail.length; i++) {
+        const a = st.trail[i - 1], b = st.trail[i];
+        ctx.strokeStyle = `rgba(255,181,71,${(i / st.trail.length) * 0.8})`; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(X(a.x), Y(a.y)); ctx.lineTo(X(b.x), Y(b.y)); ctx.stroke();
+      }
+    }
+
+    // aim preview (short on purpose: you see the start of the curve, not the answer)
+    if (st.aim) {
+      const v = aimVel();
+      if (v) {
+        const p = { x: lvl.start.x, y: lvl.start.y }, vv = { ...v };
+        ctx.fillStyle = '#ffb547';
+        for (let i = 0; i < 70; i++) {
+          step(p, vv, lvl.planets, 1 / 120);
+          if (check(p, lvl)) break;
+          if (i % 5 === 0) { ctx.globalAlpha = 1 - i / 70; ctx.beginPath(); ctx.arc(X(p.x), Y(p.y), 2, 0, 6.283); ctx.fill(); }
+        }
+        ctx.globalAlpha = 1;
+        const power = Math.hypot(v.x, v.y) / MAXV;
+        ctx.strokeStyle = 'rgba(233,237,255,.25)'; ctx.setLineDash([4, 4]);
+        ctx.beginPath(); ctx.moveTo(st.aim.x0, st.aim.y0); ctx.lineTo(st.aim.x, st.aim.y); ctx.stroke(); ctx.setLineDash([]);
+        ctx.fillStyle = '#e9edff'; ctx.font = '700 11px "Space Mono", monospace';
+        ctx.fillText(`${Math.round(power * 100)}%`, sx + 14, sy - 14);
+      }
+    }
+
+    // probe
+    if (st.phase !== 'dead') {
+      const px = X(st.probe.x), py = Y(st.probe.y);
+      const pg = ctx.createRadialGradient(px, py, 0, px, py, 14);
+      pg.addColorStop(0, 'rgba(255,214,140,.9)'); pg.addColorStop(1, 'rgba(255,181,71,0)');
+      ctx.fillStyle = pg; ctx.beginPath(); ctx.arc(px, py, 14, 0, 6.283); ctx.fill();
+      ctx.fillStyle = '#fff4dc'; ctx.beginPath(); ctx.arc(px, py, 4, 0, 6.283); ctx.fill();
+    }
+
+    for (const p of st.parts) {
+      ctx.globalAlpha = Math.max(0, p.life); ctx.fillStyle = p.color;
+      ctx.fillRect(X(p.x) - 1.5, Y(p.y) - 1.5, 3, 3);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // ---------- loop ----------
+  let last = performance.now();
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    update(dt); draw(); requestAnimationFrame(frame);
+  }
+
+  function start(data) {
+    st.best = Math.max(load(), data && data.level || 1);
+    st.level = data && data.level ? data.level : st.best;
+    if (st.best > 1) {
+      $('reset').hidden = false;
+      $('go').textContent = `Continue at level ${pad(st.level)}`;
+    }
+    hud(); resize();
+    addEventListener('resize', resize);
+    requestAnimationFrame(frame);
+  }
+  window.claude?.hot?.snapshot?.(() => ({ level: st.level }));
+  window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
+
+  // test hook
+  window.__slingwell = { st, solvable, genLevel: n => genLevel(n) };
+})();
+</script>
