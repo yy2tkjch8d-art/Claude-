@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>You’re in · ProjectX</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#07070b">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Instrument+Sans:wght@400;500;600;700&family=Martian+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/style.css">
+<script src="config.js" defer></script>
+<script src="js/success.js" defer></script>
+</head>
+<body>
+<header class="subnav">
+  <div class="nav-inner">
+    <a class="brand" href="index.html" aria-label="ProjectX home">
+      <svg class="brand-x" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <defs><linearGradient id="brandGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" class="s1"></stop><stop offset="1" class="s2"></stop></linearGradient></defs>
+        <path d="M7 7 25 25M25 7 7 25" stroke="url(#brandGrad)" stroke-width="4.5" stroke-linecap="square" fill="none"></path>
+      </svg>
+      <span class="brand-word">PROJECT<b>X</b></span>
+    </a>
+  </div>
+</header>
+<main class="done wrap" id="main">
+  <canvas class="confetti" id="confetti" aria-hidden="true"></canvas>
+  <p class="eyebrow" id="doneStatus">Order received</p>
+  <h1 class="done-title">You’re in<span>.</span></h1>
+  <p class="done-lede" id="doneEvent">Your receipt is on its way to your inbox.</p>
+  <div class="co-summary" id="doneOrder" hidden></div>
+  <ol class="done-steps">
+    <li><span><strong>Check your email.</strong> Stripe sends your receipt. That receipt is your ticket.</span></li>
+    <li><span><strong>Watch WhatsApp.</strong> The exact location arrives 24 hours before doors.</span></li>
+    <li><span><strong>Bring your original ID.</strong> 21+ only. The name on your order must match your ID.</span></li>
+  </ol>
+  <div class="done-actions">
+    <button class="btn btn-primary" id="addCal" type="button" hidden>Add to calendar</button>
+    <a class="btn btn-ghost" href="index.html">Back to ProjectX</a>
+  </div>
+</main>
+</body>
+</html>

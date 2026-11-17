@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ProjectX Dubai</title>
+<meta name="description" content="ProjectX throws party experiments in Dubai: the best DJs, the best crowd and the best production. Tickets, VIP tables and guest list.">
+<meta name="theme-color" content="#07070b">
+<meta property="og:type" content="website">
+<meta property="og:title" content="ProjectX · Dubai">
+<meta property="og:description" content="The best DJs, the best crowd and the best production in Dubai. Tickets, VIP tables and guest list.">
+<meta property="og:image" content="/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Instrument+Sans:wght@400;500;600;700&family=Martian+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/style.css">
+<script src="config.js" defer></script>
+<script src="js/audio.js" defer></script>
+<script src="js/visuals.js" defer></script>
+<script src="js/app.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="#top" aria-label="ProjectX, back to top">
+      <svg class="brand-x" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <defs><linearGradient id="brandGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" class="s1"></stop><stop offset="1" class="s2"></stop></linearGradient></defs>
+        <path d="M7 7 25 25M25 7 7 25" stroke="url(#brandGrad)" stroke-width="4.5" stroke-linecap="square" fill="none"></path>
+      </svg>
+      <span class="brand-word">PROJECT<b>X</b></span>
+    </a>
+    <nav class="nav-links" aria-label="Sections">
+      <a href="#events">Events</a>
+      <a href="#lineup">Lineup</a>
+      <a href="#experience">Experience</a>
+      <a href="#guestlist">Guest list</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="sound" id="soundToggle" type="button" aria-pressed="false">
+        <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <span class="sound-text">Sound off</span>
+      </button>
+      <a class="btn btn-primary btn-sm nav-cta" href="#tickets">Tickets</a>
+      <button class="menu-toggle" id="menuToggle" type="button" aria-expanded="false" aria-controls="mobileMenu">
+        <span class="sr-only">Menu</span><i></i><i></i>
+      </button>
+    </div>
+  </div>
+</header>
+<nav class="mobile-menu" id="mobileMenu" aria-label="Menu" hidden>
+  <a href="#events">Events</a>
+  <a href="#lineup">Lineup</a>
+  <a href="#experience">Experience</a>
+  <a href="#tickets">Tickets</a>
+  <a href="#guestlist">Guest list</a>
+  <a href="#faq">FAQ</a>
+</nav>
+
+<main id="main">
+  <section class="hero" id="top" aria-labelledby="heroTitle">
+    <canvas class="stage" id="stage" aria-hidden="true"></canvas>
+    <div class="hero-inner wrap">
+      <p class="eyebrow">Dubai · Party experiments</p>
+      <h1 class="wordmark" id="heroTitle"><span class="wm-project">PROJECT</span><span class="wm-x">X</span></h1>
+      <p class="hero-lede">The best DJs, the best crowd and the best production in Dubai. A new location every time, sent to ticket holders 24 hours before.</p>
+      <div class="next" id="nextUp"></div>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#tickets">Get tickets</a>
+        <button class="btn btn-ghost" id="playToggle" type="button" aria-pressed="false">
+          <span class="play-icon" aria-hidden="true"></span><span class="play-text">Play the vibe</span>
+        </button>
+      </div>
+      <fieldset class="vibes">
+        <legend>Pick the vibe</legend>
+        <div class="vibe-row">
+          <input type="radio" name="vibe" id="vibe-afro" value="afro" checked>
+          <label for="vibe-afro"><span class="led" aria-hidden="true"></span>Afro House <small data-bpm="afro">122 BPM</small></label>
+          <input type="radio" name="vibe" id="vibe-techno" value="techno">
+          <label for="vibe-techno"><span class="led" aria-hidden="true"></span>Techno <small data-bpm="techno">130 BPM</small></label>
+          <input type="radio" name="vibe" id="vibe-hiphop" value="hiphop">
+          <label for="vibe-hiphop"><span class="led" aria-hidden="true"></span>Hip-Hop <small data-bpm="hiphop">92 BPM</small></label>
+        </div>
+      </fieldset>
+    </div>
+    <div class="meter wrap" aria-hidden="true">
+      <canvas class="spectrum" id="spectrum"></canvas>
+      <span id="meterLabel">Afro House · 122 BPM</span>
+      <span class="meter-hint">Tap the floor</span>
+    </div>
+  </section>
+
+  <div class="tapes" aria-hidden="true">
+    <div class="tape tape-a"><div class="tape-track"><span>Best DJs ✕ Best crowd ✕ Best sound ✕ Best lights ✕ Best tables ✕ Best nights ✕ Dubai ✕&nbsp;</span><span>Best DJs ✕ Best crowd ✕ Best sound ✕ Best lights ✕ Best tables ✕ Best nights ✕ Dubai ✕&nbsp;</span><span>Best DJs ✕ Best crowd ✕ Best sound ✕ Best lights ✕ Best tables ✕ Best nights ✕ Dubai ✕&nbsp;</span><span>Best DJs ✕ Best crowd ✕ Best sound ✕ Best lights ✕ Best tables ✕ Best nights ✕ Dubai ✕&nbsp;</span></div></div>
+    <div class="tape tape-b"><div class="tape-track"><span>ProjectX ✕ 21+ ✕ Original ID ✕ Location drops 24h before ✕ Tickets, tables &amp; guest list ✕&nbsp;</span><span>ProjectX ✕ 21+ ✕ Original ID ✕ Location drops 24h before ✕ Tickets, tables &amp; guest list ✕&nbsp;</span><span>ProjectX ✕ 21+ ✕ Original ID ✕ Location drops 24h before ✕ Tickets, tables &amp; guest list ✕&nbsp;</span><span>ProjectX ✕ 21+ ✕ Original ID ✕ Location drops 24h before ✕ Tickets, tables &amp; guest list ✕&nbsp;</span></div></div>
+  </div>
+
+  <section class="section" id="events" aria-labelledby="eventsTitle">
+    <div class="wrap">
+      <header class="section-head">
+        <p class="eyebrow">Experiments</p>
+        <h2 id="eventsTitle">Upcoming nights</h2>
+      </header>
+      <div class="events" id="eventList"></div>
+    </div>
+  </section>
+
+  <section class="section" id="lineup" aria-labelledby="lineupTitle">
+    <div class="wrap">
+      <header class="section-head split">
+        <div>
+          <p class="eyebrow">Who’s playing</p>
+          <h2 id="lineupTitle">Lineup</h2>
+        </div>
+        <fieldset class="switch">
+          <legend class="sr-only">Show the lineup for</legend>
+          <div class="switch-row" id="lineupSwitch"></div>
+        </fieldset>
+      </header>
+      <ul class="acts" id="actList"></ul>
+    </div>
+  </section>
+
+  <section class="section" id="experience" aria-labelledby="xpTitle">
+    <div class="wrap">
+      <header class="section-head">
+        <p class="eyebrow">The rider</p>
+        <h2 id="xpTitle">Best everything</h2>
+        <p class="section-lede">Every ProjectX night runs on the same rider, whatever the location.</p>
+      </header>
+      <dl class="rider">
+        <div class="rider-row"><dt>Sound</dt><dd><strong>Club-grade rig, tuned for the room</strong><span>Subs on the floor and no dead corners. We tune it on the day.</span></dd></div>
+        <div class="rider-row"><dt>Light</dt><dd><strong>Lasers, LED and haze</strong><span>Run live by our own crew and synced to the DJ.</span></dd></div>
+        <div class="rider-row"><dt>Crowd</dt><dd><strong>Curated list, strict door</strong><span>A crowd that came to dance. Good energy only.</span></dd></div>
+        <div class="rider-row"><dt>Tables</dt><dd><strong>Bottle service with a host</strong><span>Your own table, your own host and a clear view of the booth.</span></dd></div>
+        <div class="rider-row"><dt>Location</dt><dd><strong>A new spot every time</strong><span>Rooftops, desert, beach. The pin drops 24 hours before doors.</span></dd></div>
+        <div class="rider-row"><dt>Safety</dt><dd><strong>Security, medics, free water</strong><span>At every event, all night.</span></dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="section box-office" id="tickets" aria-labelledby="ticketsTitle">
+    <div class="wrap">
+      <header class="section-head split">
+        <div>
+          <p class="eyebrow">Box office</p>
+          <h2 id="ticketsTitle">Get in</h2>
+        </div>
+        <fieldset class="switch">
+          <legend class="sr-only">Buy tickets for</legend>
+          <div class="switch-row" id="ticketSwitch"></div>
+        </fieldset>
+      </header>
+      <div class="office">
+        <div class="office-main">
+          <div class="office-event" id="officeEvent"></div>
+          <ul class="tiers" id="tierList"></ul>
+          <div class="office-external" id="officeExternal" hidden></div>
+        </div>
+        <aside class="order" id="order" aria-labelledby="orderTitle">
+          <h3 class="order-title" id="orderTitle">Your order</h3>
+          <p class="order-event" id="orderEvent"></p>
+          <ul class="order-lines" id="orderLines"></ul>
+          <p class="order-empty" id="orderEmpty">Add tickets to start your order.</p>
+          <div class="order-total" aria-live="polite"><span>Total</span><output id="orderTotal">AED 0</output></div>
+          <p class="order-vat" id="orderVat"></p>
+          <button class="btn btn-primary btn-block" id="checkoutBtn" type="button" disabled>Checkout</button>
+          <p class="order-fine">21+ · Original ID at the door · The name on the order must match your ID</p>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="guestlist" aria-labelledby="glTitle">
+    <div class="wrap gl">
+      <div class="gl-panel gl-list" id="glPanel">
+        <p class="eyebrow">Guest list</p>
+        <h2 id="glTitle">Ladies’ list</h2>
+        <p class="gl-text" id="glText"></p>
+        <form class="gl-form" id="glForm" novalidate>
+          <div class="field">
+            <label for="glName">Your name</label>
+            <input id="glName" name="name" autocomplete="name" required minlength="2" maxlength="80">
+          </div>
+          <div class="field">
+            <label for="glPhone">WhatsApp number</label>
+            <input id="glPhone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+971 50 123 4567" required>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="glEvent">Night</label>
+              <select id="glEvent" name="event"></select>
+            </div>
+            <div class="field">
+              <label for="glCount">Guests</label>
+              <select id="glCount" name="count">
+                <option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-primary" type="submit">Request on WhatsApp</button>
+          <p class="form-status" id="glStatus" role="status"></p>
+        </form>
+      </div>
+      <div class="gl-panel gl-tables">
+        <p class="eyebrow">Tables</p>
+        <h3 class="gl-h3">Bottle service</h3>
+        <p>Tables seat up to 6 guests with a premium bottle package and your own host. Book one online with your ticket, or message the team for bigger groups and custom packages.</p>
+        <ul class="gl-perks" id="tablePrices" aria-label="Table prices per night"></ul>
+        <div class="gl-actions">
+          <a class="btn btn-ghost" href="#tickets" data-pick-tier="table">Book a table online</a>
+          <a class="btn btn-ghost" id="conciergeLink" href="#guestlist" target="_blank" rel="noopener" hidden>Message the team</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="faq" aria-labelledby="faqTitle">
+    <div class="wrap faq-wrap">
+      <header class="section-head">
+        <p class="eyebrow">Know before you go</p>
+        <h2 id="faqTitle">FAQ</h2>
+      </header>
+      <div class="faq" id="faqList"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <p class="footer-mark" aria-hidden="true">PROJECT<b>X</b></p>
+    <div class="footer-grid">
+      <div>
+        <h3>ProjectX</h3>
+        <p>Party experiments in Dubai.</p>
+      </div>
+      <div>
+        <h3>Contact</h3>
+        <ul class="footer-list" id="contactList"></ul>
+      </div>
+      <div>
+        <h3>Info</h3>
+        <ul class="footer-list">
+          <li><a href="legal.html#terms">Terms and refunds</a></li>
+          <li><a href="legal.html#privacy">Privacy</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="footer-fine">21+ only · Original ID required · Right of admission reserved · © <span id="year">2026</span> ProjectX</p>
+  </div>
+</footer>
+
+<div class="cartbar" id="cartBar" hidden>
+  <p class="cartbar-info"><span id="cartCount">0 items</span><strong id="cartTotal">AED 0</strong></p>
+  <button class="btn btn-primary btn-sm" id="cartCheckout" type="button">Checkout</button>
+</div>
+
+<dialog class="checkout" id="checkout" aria-labelledby="coTitle">
+  <form class="co" id="coForm" novalidate>
+    <div class="co-head">
+      <h2 class="co-title" id="coTitle">Checkout</h2>
+      <button class="co-close" id="coClose" type="button" aria-label="Close checkout"><i></i><i></i></button>
+    </div>
+    <div class="co-summary" id="coSummary"></div>
+    <div class="field">
+      <label for="coName">Full name, as on your ID</label>
+      <input id="coName" name="name" autocomplete="name" required minlength="2" maxlength="80">
+    </div>
+    <div class="field">
+      <label for="coEmail">Email</label>
+      <input id="coEmail" name="email" type="email" autocomplete="email" inputmode="email" required maxlength="254">
+      <small>Your receipt goes here. It is your ticket.</small>
+    </div>
+    <div class="field">
+      <label for="coPhone">WhatsApp number</label>
+      <input id="coPhone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+971 50 123 4567" required>
+      <small>The location arrives here 24 hours before doors.</small>
+    </div>
+    <label class="check"><input type="checkbox" id="coAge" required><span>I’m 21 or older and will bring my original ID.</span></label>
+    <label class="check"><input type="checkbox" id="coTerms" required><span>I agree to the <a href="legal.html#terms" target="_blank" rel="noopener">terms and refund policy</a>.</span></label>
+    <p class="co-error" id="coError" role="alert" hidden></p>
+    <div class="co-fallback" id="coFallback" hidden></div>
+    <button class="btn btn-primary btn-block" id="coPay" type="submit">Pay</button>
+    <p class="co-fine">Secure card payment by Stripe. We never see your card number.</p>
+  </form>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<noscript><p class="noscript">Turn on JavaScript to see dates and buy tickets.</p></noscript>
+</body>
+</html>

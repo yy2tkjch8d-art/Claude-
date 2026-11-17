@@ -1,0 +1,11 @@
+{
+  "name": "projectx-site",
+  "private": true,
+  "description": "ProjectX Dubai party site: static pages plus Stripe checkout functions on Netlify.",
+  "scripts": {
+    "test": "node --test tests/*.test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

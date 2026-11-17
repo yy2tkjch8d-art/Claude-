@@ -6,3 +6,7 @@ An original gravity-slingshot game in one HTML file. Open `slingwell.html` in an
 - Levels are procedurally generated from a seed, then brute-force simulated (720 launches) to make sure a solution exists.
 - From level 4 on, a straight shot is always blocked by a planet.
 - Works with mouse or touch, in portrait and landscape. Respects reduced-motion settings.
+
+# ProjectX
+
+A party site for the ProjectX brand in Dubai: laser hero with a playable beat, events, lineup, box office with Stripe checkout, tables and guest list. See `projectx/README.md` for setup and go-live steps.
